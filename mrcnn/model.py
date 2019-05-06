@@ -1249,6 +1249,14 @@ def load_image_gt(dataset, config, image_id, augment=False, augmentation=None,
         # Make augmenters deterministic to apply similarly to images and masks
         det = augmentation.to_deterministic()
         image = det.augment_image(image)
+	
+        if gray_augmentation:
+            import skimage
+            image_gray = skimage.color.rgb2gray(image)
+            image_gray = np.expand_dims(image_gray, axis=-1) * 255
+            image = np.concatenate((image, image_gray.astype(np.uint8)), axis=2)
+            image_shape = image.shape
+            print(image.shape)
         # Change mask to np.uint8 because imgaug doesn't support np.bool
         mask = det.augment_image(mask.astype(np.uint8),
                                  hooks=imgaug.HooksImages(activator=hook))
@@ -1257,11 +1265,7 @@ def load_image_gt(dataset, config, image_id, augment=False, augmentation=None,
         assert mask.shape == mask_shape, "Augmentation shouldn't change mask size"
         # Change mask back to bool
         mask = mask.astype(np.bool)
-        if gray_augmentation:
-            import skimage
-            image_gray = skimage.color.rgb2gray(image)
-            image_gray = np.expand_dims(image_gray, axis=-1) * 255
-            image = np.concatenate((image, image_gray.astype(np.uint8)), axis=2)
+
 
     # Note that some boxes might be all zeros if the corresponding mask got cropped out.
     # and here is to filter them out

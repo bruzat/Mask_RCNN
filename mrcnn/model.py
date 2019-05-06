@@ -1258,10 +1258,10 @@ def load_image_gt(dataset, config, image_id, augment=False, augmentation=None,
         # Change mask back to bool
         mask = mask.astype(np.bool)
 	if gray_augmentation:
-	    import skimage
-	    image_gray = skimage.color.rgb2gray(image)
+            import skimage
+            image_gray = skimage.color.rgb2gray(image)
             image_gray = np.expand_dims(image_gray, axis=-1) * 255
-	    image = np.concatenate((image, image_gray.astype(np.uint8)), axis=2)
+            image = np.concatenate((image, image_gray.astype(np.uint8)), axis=2)
 
     # Note that some boxes might be all zeros if the corresponding mask got cropped out.
     # and here is to filter them out

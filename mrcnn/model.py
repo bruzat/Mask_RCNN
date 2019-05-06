@@ -1257,6 +1257,11 @@ def load_image_gt(dataset, config, image_id, augment=False, augmentation=None,
         assert mask.shape == mask_shape, "Augmentation shouldn't change mask size"
         # Change mask back to bool
         mask = mask.astype(np.bool)
+	if gray_augmentation:
+	    import skimage
+	    image_gray = skimage.color.rgb2gray(image)
+            image_gray = np.expand_dims(image_gray, axis=-1) * 255
+	    image = np.concatenate((image, image_gray.astype(np.uint8)), axis=2)
 
     # Note that some boxes might be all zeros if the corresponding mask got cropped out.
     # and here is to filter them out
@@ -1629,7 +1634,7 @@ def generate_random_rois(image_shape, count, gt_class_ids, gt_boxes):
 
 def data_generator(dataset, config, shuffle=True, augment=False, augmentation=None,
                    random_rois=0, batch_size=1, detection_targets=False,
-                   no_augmentation_sources=None):
+                   no_augmentation_sources=None, gray_augmentation=False):
     """A generator that returns images and corresponding target class ids,
     bounding box deltas, and masks.
 
@@ -1701,7 +1706,8 @@ def data_generator(dataset, config, shuffle=True, augment=False, augmentation=No
                 image, image_meta, gt_class_ids, gt_boxes, gt_masks = \
                 load_image_gt(dataset, config, image_id, augment=augment,
                               augmentation=None,
-                              use_mini_mask=config.USE_MINI_MASK)
+                              use_mini_mask=config.USE_MINI_MASK,
+			      gray_augmentation=gray_augmentation)
             else:
                 image, image_meta, gt_class_ids, gt_boxes, gt_masks = \
                     load_image_gt(dataset, config, image_id, augment=augment,
@@ -2274,7 +2280,8 @@ class MaskRCNN():
             "*epoch*", "{epoch:04d}")
 
     def train(self, train_dataset, val_dataset, learning_rate, epochs, layers,
-              augmentation=None, custom_callbacks=None, no_augmentation_sources=None, use_multiprocessing=True):
+              augmentation=None, custom_callbacks=None, no_augmentation_sources=None, use_multiprocessing=True,
+	      gray_augmentation=False):
         """Train the model.
         train_dataset, val_dataset: Training and validation Dataset objects.
         learning_rate: The learning rate to train with
@@ -2327,7 +2334,8 @@ class MaskRCNN():
         train_generator = data_generator(train_dataset, self.config, shuffle=True,
                                          augmentation=augmentation,
                                          batch_size=self.config.BATCH_SIZE,
-                                         no_augmentation_sources=no_augmentation_sources)
+                                         no_augmentation_sources=no_augmentation_sources,
+					 gray_augmentation = gray_augmentation)
         val_generator = data_generator(val_dataset, self.config, shuffle=True,
                                        batch_size=self.config.BATCH_SIZE)
 

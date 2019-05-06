@@ -2341,7 +2341,8 @@ class MaskRCNN():
                                          no_augmentation_sources=no_augmentation_sources,
 					 gray_augmentation = gray_augmentation)
         val_generator = data_generator(val_dataset, self.config, shuffle=True,
-                                       batch_size=self.config.BATCH_SIZE)
+                                       batch_size=self.config.BATCH_SIZE,
+                                       gray_augmentation = gray_augmentation)
 
         # Create log_dir if it does not exist
         if not os.path.exists(self.log_dir):

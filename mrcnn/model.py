@@ -2343,7 +2343,8 @@ class MaskRCNN():
         val_generator = data_generator(val_dataset, self.config, shuffle=True,
                                        batch_size=self.config.BATCH_SIZE,
                                        gray_augmentation = gray_augmentation)
-
+        print(next(train_generator).shape)
+        
         # Create log_dir if it does not exist
         if not os.path.exists(self.log_dir):
             os.makedirs(self.log_dir)

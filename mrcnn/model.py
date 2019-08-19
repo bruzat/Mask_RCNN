@@ -2104,7 +2104,7 @@ class MaskRCNN():
         checkpoint = os.path.join(dir_name, checkpoints[-1])
         return checkpoint
 
-    def load_weights(self, filepath, by_name=False, exclude=None):
+    def load_weights(self, filepath, by_name=False, exclude=None, verbose=1):
         """Modified version of the corresponding Keras function with
         the addition of multi-GPU support and the ability to exclude
         some layers from loading.
@@ -2146,7 +2146,7 @@ class MaskRCNN():
             f.close()
 
         # Update the log directory
-        self.set_log_dir(filepath)
+        self.set_log_dir(filepath, verbose)
 
     def get_imagenet_weights(self):
         """Downloads ImageNet trained weights from Keras.
@@ -2248,7 +2248,7 @@ class MaskRCNN():
                 log("{}{:20}   ({})".format(" " * indent, layer.name,
                                             layer.__class__.__name__))
 
-    def set_log_dir(self, model_path=None):
+    def set_log_dir(self, model_path=None, verbose=1):
         """Sets the model log directory and epoch counter.
 
         model_path: If None, or a format different from what this code uses
@@ -2274,7 +2274,8 @@ class MaskRCNN():
                 # Epoch number in file is 1-based, and in Keras code it's 0-based.
                 # So, adjust for that then increment by one to start from the next epoch
                 self.epoch = int(m.group(6)) - 1 + 1
-                print('Re-starting from epoch %d' % self.epoch)
+                if verbose:
+                    print('Re-starting from epoch %d' % self.epoch)
 
         # Directory for training logs
         self.log_dir = os.path.join(self.model_dir, "{}{:%Y%m%dT%H%M}".format(

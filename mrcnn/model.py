@@ -2356,7 +2356,7 @@ class MaskRCNN():
         callbacks = [
             keras.callbacks.TensorBoard(log_dir=self.log_dir,
                                         histogram_freq=0, write_graph=True, write_images=False),
-            keras.callbacks.ModelCheckpoint(self.checkpoint_path, save_best_only=True, monitor='val_loss', mode='min',
+            keras.callbacks.ModelCheckpoint(self.checkpoint_path, save_best_only=True, monitor='val_loss',
                                             verbose=0, save_weights_only=True),
         ]
 
@@ -2381,7 +2381,7 @@ class MaskRCNN():
         else:
             workers = multiprocessing.cpu_count()
 
-        self.keras_model.fit_generator(
+        history = self.keras_model.fit_generator(
             train_generator,
             initial_epoch=self.epoch,
             epochs=epochs,
@@ -2395,6 +2395,8 @@ class MaskRCNN():
             verbose=verbose
         )
         self.epoch = max(self.epoch, epochs)
+
+        return history
 
     def mold_inputs(self, images):
         """Takes a list of images and modifies them to the format expected
